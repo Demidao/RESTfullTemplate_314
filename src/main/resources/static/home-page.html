@@ -1,0 +1,173 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <!-- Обязательные метатеги -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+            crossorigin="anonymous"></script>
+    <link rel="icon" href="img/favicon.ico" type="image/x-icon">
+    <title>RestTemplate Task 3.1.4</title>
+</head>
+<body>
+<div id="container">
+    <div id="content">
+        <div id="menu">
+            <h1 class="m-2">Task 3.1.4</h1>
+        </div>
+        <div class="flex-column col-md-7 " id="manager">
+            <div class="mb-3 bg-light">
+                <button type="button" class="btn btn-outline-primary m-2" id="getMethodBtn">Получить пользователей
+                </button>
+                <div class="form-floating m-2">
+                    <textarea class="form-control" id="getMethodResTextArea" style="height: 100px" disabled></textarea>
+                </div>
+            </div>
+
+            <div class="mb-3 bg-light">
+                <button type="button" class="btn btn-outline-primary m-2" id="postMethodBtn">Сохранить пользователя
+                </button>
+                <div class="form-floating m-2">
+                    <textarea class="form-control" id="postMethodResTextArea" style="height: 100px"
+                              placeholder="Результат"
+                              disabled> Будет сохранен пользователь: id = 3, name = James, lastName = Brown, age = 30</textarea>
+                </div>
+            </div>
+
+            <div class="mb-3 bg-light">
+                <button type="button" class="btn btn-outline-primary m-2" id="putMethodBtn">Изменить пользователя
+                </button>
+                <div class="form-floating m-2">
+                    <textarea class="form-control" id="putMethodResTextArea" style="height: 100px"
+                              placeholder="Результат"
+                              disabled> Будет изменен пользователь id = 3:  name = Thomas, lastName = Shelby</textarea>
+                </div>
+            </div>
+            <div class="mb-3 bg-light">
+                <button type="button" class="btn btn-outline-primary m-2" placeholder="Результат" id="deleteMethodBtn">
+                    Удалить пользователя
+                </button>
+                <div class="form-floating m-2">
+                    <textarea class="form-control" placeholder="Результат" id="deleteMethodResTextArea"
+                              disabled></textarea>
+                </div>
+            </div>
+            <div class="mb-3 bg-light">
+                <h2 id="answer" ></h2>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+
+    //Адреса контроллеров.
+    const getUsersUrl = '/retrieve-users';
+    const postNewUser = '/create-user';
+    const deleteUserUrl = '/delete-user';
+    const putUserUrl = '/update-user';
+
+    //Данные пользователя
+    const id = 3;
+    const name = "James";
+    const lastName = "Brown";
+    const age = 36;
+
+    const newName = "Thomas";
+    const newLastName = "Shelby";
+
+    //Элементы страницы
+    const getBtn = document.getElementById("getMethodBtn");
+    const postBtn = document.getElementById("postMethodBtn")
+    const putBtn = document.getElementById("putMethodBtn")
+    const deleteBtn = document.getElementById("deleteMethodBtn")
+
+    //Ответ тут:
+    let answer = '';
+
+    getBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const res = await fetch(getUsersUrl);
+        let json = await res.json();
+        let info = '';
+        for (let key in json) {
+            info += '{' + json[key].id + ' '
+                + json[key].name + ' '
+                + json[key].lastName + ' '
+                + json[key].age + '} ';
+        }
+        document.getElementById('getMethodResTextArea').innerText = info;
+    });
+
+    postBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const res = await fetch(postNewUser, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: id,
+                name: name,
+                lastName: lastName,
+                age: age
+            })
+        });
+        const pieceOfCode = (await res.text()).split(';')[0];
+        answer += pieceOfCode;
+
+        document.getElementById('postMethodResTextArea').innerText
+            = "Пользователь сохранен. Первая часть кода: " + pieceOfCode;
+    });
+
+    putBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const res = await fetch(putUserUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: id,
+                name: newName,
+                lastName: newLastName,
+                age: age
+            })
+        });
+        const pieceOfCode = (await res.text()).split(';')[0];
+
+        answer += pieceOfCode;
+
+        document.getElementById('putMethodResTextArea').innerText
+            = "Пользователь обновлен. Вторая часть кода: " + pieceOfCode;
+    });
+
+    deleteBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        const res = await fetch(deleteUserUrl + "/" + id, {
+            method: 'DELETE'
+        });
+
+        const pieceOfCode = (await res.text()).split(';')[0];
+
+        answer += pieceOfCode;
+
+        document.getElementById('deleteMethodResTextArea').innerText
+            = "Пользователь удален. Третья часть кода: " + pieceOfCode;
+
+        document.getElementById('answer').innerText
+            = "ОТВЕТ: " + answer;
+    });
+
+</script>
+</body>
+</html>
